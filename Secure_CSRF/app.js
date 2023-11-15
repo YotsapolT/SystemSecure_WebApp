@@ -83,9 +83,6 @@ app.post("/registerEmail", function (request, response) {
   let username = request.session.username;
 
   if (email && request.session.csrf == request.body._csrf) {
-    // let myQuery =
-    //   "UPDATE account SET email = '" + email + "' WHERE username = '" + username + "';";
-
     const queryWithParameters = connection.format(
       "UPDATE account SET email = ? WHERE username = ?;",
       [email, username]
@@ -102,12 +99,15 @@ app.post("/registerEmail", function (request, response) {
 });
 
 app.post("/viewEmail", function (request, response) {
-  let username = request.session.username;
+  let username = request.body.username
   console.log(request.session.csrf)
   console.log(request.body._csrf)
   if(request.session.csrf == request.body._csrf){
-    const myQuery = "SELECT * FROM account WHERE username = '" + username + "'";
-    connection.query(myQuery, function (error, results, fields) {
+    const queryWithParameters = connection.format(
+      "SELECT * FROM account WHERE username = ?",
+      [username]
+    );
+    connection.query(queryWithParameters, function (error, results, fields) {
       if (error) throw error;
       if (results.length > 0) {
         const email = results[0].email;
@@ -151,5 +151,5 @@ app.post("/showtext", (request, response) => {
   }
 });
 
-const port = 4000;
+const port = 4001;
 app.listen(port, console.log("server run on port: http://localhost:" + port));
