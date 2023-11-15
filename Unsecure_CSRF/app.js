@@ -35,18 +35,18 @@ app.post("/auth", function (request, response) {
   // Ensure the input fields exists and are not empty
   if (username && password) {
     //Secure SQL-Injection
-    const queryWithParameters = connection.format(
-      "SELECT * FROM account WHERE username = ? AND pwd = ?",
-      [username, password]
-    );
+    // const queryWithParameters = connection.format(
+    //   "SELECT * FROM account WHERE username = ? AND pwd = ?",
+    //   [username, password]
+    // );
 
     //Unsecure SQL-Injection
-    // const myQuery =
-    //   "SELECT * FROM account WHERE username = '" + username + "' AND pwd = '" + password + "'";
+    const myQuery =
+      "SELECT * FROM account WHERE username = '" + username + "' AND pwd = '" + password + "'";
 
-    // console.log(myQuery);
-    console.log(queryWithParameters);
-    connection.query(queryWithParameters, function (error, results) {
+    console.log(myQuery);
+    // console.log(queryWithParameters);
+    connection.query(myQuery, function (error, results) {
       // If there is an issue with the query, output the error
       if (error) throw error;
       // If the account exists
@@ -91,17 +91,21 @@ app.post("/registerEmail", function (request, response) {
 
 app.post("/viewEmail", function (request, response) {
   let username = request.session.username;
-  const myQuery = "SELECT * FROM account WHERE username = '" + username + "'";
-  connection.query(myQuery, function (error, results, fields) {
+  // let username = request.body.username;
+  const queryWithParameters = connection.format(
+    "SELECT * FROM account WHERE username = ?",
+    [username]
+  );
+  connection.query(queryWithParameters, function (error, results, fields) {
     if (error) throw error;
     if (results.length > 0) {
       const email = results[0].email;
 
       //Unsecure Stored-XSS
-      // response.send('your email: ' + results[0].email);
+      response.send('your email: ' + results[0].email);
 
       //Secure Stored-XSS
-      response.render('viewEmail', {email: email});
+      // response.render('viewEmail', {email: email});
     } else {
       response.send('email not found');
       response.end();
@@ -123,10 +127,10 @@ app.get("/home", function (request, response) {
 app.post("/showtext", (request, response) => {
   const text = request.body.text;
   //Unsecure Reflect-XSS
-  // response.send(text);
+  response.send(text);
 
   //Secure Reflect-XSS
-  response.render("showtext", { text: text});
+  // response.render("showtext", { text: text});
 });
 
 const port = 4000;
